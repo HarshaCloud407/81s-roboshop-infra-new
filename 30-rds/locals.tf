@@ -1,17 +1,5 @@
 locals {
-  name = "${var.project}-${var.environment}"
-
-  common_tags = {
-    Project     = var.project
-    Environment = var.environment
-    Terraform   = "true"
-  }
-
-  db_tags = merge(
-    local.common_tags,
-    {
-      Component = "mysql"
-      Name      = "${local.name}-mysql"
-    }
-  )
+  resource_name = "${var.project_name}-${var.environment}"
+  mysql_sg_id = data.aws_ssm_parameter.mysql_sg_id.value
+  database_subnet_group_name = data.aws_ssm_parameter.database_subnet_group_name.value
 }

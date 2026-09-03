@@ -1,116 +1,75 @@
 module "db" {
-  source  = "terraform-aws-modules/rds/aws"
-  version = "7.2.1"
+  source = "terraform-aws-modules/rds/aws"
+  identifier = local.resource_name 
 
-  identifier = local.name
+  engine            = "mysql"
+  engine_version    = "8.0.40"
+  instance_class    = "db.t4g.micro"
+  allocated_storage = 20
 
-  # -------------------------
-  # Database
-  # -------------------------
+  db_name  = "transactions" # AWS will create this schema automatically
+  username = "root"
+  port     = "3306"
+  password = "RoboShop1"
+  manage_master_user_password = false
 
-  engine         = "mysql"
-  engine_version = var.db_engine_version
+  vpc_security_group_ids = [local.mysql_sg_id]
 
-  instance_class = var.db_instance_class
+  # DB subnet group
+  create_db_subnet_group = false
+  db_subnet_group_name = local.database_subnet_group_name
 
-  allocated_storage     = var.db_allocated_storage
-  max_allocated_storage = var.db_max_allocated_storage
-
-  db_name  = var.db_name
-  username = var.db_username
-
-  port = var.db_port
-
-  # Let AWS manage the master password
-  manage_master_user_password = true
-
-  # -------------------------
-  # Network
-  # -------------------------
-
-  create_db_subnet_group = true
-
-  subnet_ids = split(
-    ",",
-    data.aws_ssm_parameter.private_subnet_ids.value
-  )
-
-  vpc_security_group_ids = [
-    data.aws_ssm_parameter.mysql_sg_id.value
-  ]
-
-  # -------------------------
-  # Availability
-  # -------------------------
-
-  multi_az = var.db_multi_az
-
-  # -------------------------
-  # Storage
-  # -------------------------
-
-  storage_encrypted = var.db_storage_encrypted
-
-  # -------------------------
-  # Backup
-  # -------------------------
-
-  backup_retention_period = 7
-
-  backup_window      = "03:00-04:00"
-  maintenance_window = "sun:04:00-sun:05:00"
-
-  # -------------------------
-  # Parameter Group
-  # -------------------------
-
-  create_db_parameter_group = true
-
+  # DB parameter group
   family = "mysql8.0"
 
-  # -------------------------
-  # Option Group
-  # -------------------------
-
-  create_db_option_group = true
-
+  # DB option group
   major_engine_version = "8.0"
 
-  # -------------------------
-  # Monitoring
-  # -------------------------
+  # Database Deletion Protection
+  deletion_protection = false
+  skip_final_snapshot = true
 
-  monitoring_interval = 0
+  parameters = [
+    {
+      name  = "character_set_client"
+      value = "utf8mb4"
+    },
+    {
+      name  = "character_set_server"
+      value = "utf8mb4"
+    }
+  ]
 
-  # -------------------------
-  # Protection
-  # -------------------------
+  options = [
+    {
+      option_name = "MARIADB_AUDIT_PLUGIN"
 
-  deletion_protection = var.db_deletion_protection
-  skip_final_snapshot = var.db_skip_final_snapshot
+      option_settings = [
+        {
+          name  = "SERVER_AUDIT_EVENTS"
+          value = "CONNECT"
+        },
+        {
+          name  = "SERVER_AUDIT_FILE_ROTATIONS"
+          value = "37"
+        },
+      ]
+    },
+  ]
 
-  # -------------------------
-  # Tags
-  # -------------------------
-
-  tags = local.db_tags
+  tags = merge(
+    var.common_tags,
+    {
+        Name = local.resource_name
+    }
+  )
 }
 
-
-# =========================================================
-# Route53
-# =========================================================
-
-resource "aws_route53_record" "db" {
-  zone_id = data.aws_route53_zone.domain.zone_id
-
-  name = "mysql.${var.domain_name}"
-
-  type = "CNAME"
-
-  ttl = 60
-
-  records = [
-    module.db.db_instance_address
-  ]
+resource "aws_route53_record" "www-dev" {
+  zone_id = var.zone_id
+  name    = "mysql-${var.environment}.${var.domain_name}"
+  type    = "CNAME"
+  ttl     = 5
+  records = [module.db.db_instance_address]
+  allow_overwrite = true
 }
