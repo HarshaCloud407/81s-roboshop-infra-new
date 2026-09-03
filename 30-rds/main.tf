@@ -1,81 +1,75 @@
-module "db" {
-  source = "terraform-aws-modules/rds/aws"
+resource "aws_db_subnet_group" "mysql" {
+  name = "${local.name}-mysql"
 
-  identifier = local.resource_name #roboshop-dev
-
-  engine            = "mysql"
-  engine_version    = "8.0"
-  instance_class    = "db.t3.micro"
-  allocated_storage = 5
-
-  db_name  = "transactions"
-  username = "root"
-  manage_master_user_password = false
-  password = "RoboShop1"
-  port     = "3306"
-
-  vpc_security_group_ids = [local.mysql_sg_id]
-  skip_final_snapshot = true
-
-  tags = merge(
-    var.common_tags,
-    var.rds_tags
+  subnet_ids = split(
+    ",",
+    data.aws_ssm_parameter.private_subnet_ids.value
   )
 
-  # DB subnet group
-  db_subnet_group_name = local.database_subnet_group_name
-
-  # DB parameter group
-  family = "mysql8.0"
-
-  # DB option group
-  major_engine_version = "8.0"
-
-  parameters = [
+  tags = merge(
+    local.db_tags,
     {
-      name  = "character_set_client"
-      value = "utf8mb4"
-    },
-    {
-      name  = "character_set_server"
-      value = "utf8mb4"
+      Name = "${local.name}-mysql"
     }
-  ]
-
-  options = [
-    {
-      option_name = "MARIADB_AUDIT_PLUGIN"
-
-      option_settings = [
-        {
-          name  = "SERVER_AUDIT_EVENTS"
-          value = "CONNECT"
-        },
-        {
-          name  = "SERVER_AUDIT_FILE_ROTATIONS"
-          value = "37"
-        },
-      ]
-    },
-  ]
+  )
 }
 
-module "records" {
-  source  = "terraform-aws-modules/route53/aws//modules/records"
+resource "aws_db_instance" "mysql" {
+  identifier = "${local.name}-mysql"
 
-  zone_name = var.zone_name
+  engine         = "mysql"
+  engine_version = var.db_engine_version
 
-  records = [
-    
-    {
-      name    = "mysql-${var.environment}" #mysql-dev.daws81s.online
-      type    = "CNAME"
-      ttl     = 1
-      records = [
-        module.db.db_instance_address
-      ]
-      allow_overwrite = true
-    },
+  instance_class        = var.db_instance_class
+  allocated_storage     = var.db_allocated_storage
+  max_allocated_storage = 50
+  storage_type          = "gp3"
+  storage_encrypted     = true
+
+  db_name  = var.db_name
+  username = var.db_username
+
+  manage_master_user_password = true
+
+  port = 3306
+
+  db_subnet_group_name = aws_db_subnet_group.mysql.name
+
+  vpc_security_group_ids = [
+    data.aws_ssm_parameter.mysql_sg_id.value
   ]
 
+  publicly_accessible = false
+
+  multi_az = false
+
+  backup_retention_period = 7
+
+  backup_window = "03:00-04:00"
+
+  maintenance_window = "sun:04:00-sun:05:00"
+
+  auto_minor_version_upgrade = true
+
+  deletion_protection = false
+
+  skip_final_snapshot = true
+
+  apply_immediately = true
+
+  tags = local.db_tags
+}
+
+resource "aws_route53_record" "mysql" {
+  zone_id = data.aws_route53_zone.internal.zone_id
+
+  name = var.db_dns_name
+
+  type = "CNAME"
+
+  ttl = 30
+
+  records = [
+    aws_db_instance.mysql.address
+  ]
 }
