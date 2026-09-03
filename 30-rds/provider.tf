@@ -8,13 +8,13 @@ terraform {
 
   backend "s3" {
     bucket = "81s-remote-state-dev-hyd"
-    key    = "roboshop-dev-rds" # you should have unique keys with in the bucket, same key should not be used in other repos or tf projects
+    key    = "roboshop-dev-rds"
     region = "us-east-1"
+
     dynamodb_table = "81s-locking-dev-hyd"
   }
 }
 
 provider "aws" {
-  # Configuration options
   region = "us-east-1"
 }

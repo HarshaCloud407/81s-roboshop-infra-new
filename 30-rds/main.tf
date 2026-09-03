@@ -1,31 +1,33 @@
 module "db" {
-  source = "terraform-aws-modules/rds/aws"
-  identifier = local.resource_name 
+  source  = "terraform-aws-modules/rds/aws"
+  version = "7.2.1"
 
-  engine            = "mysql"
-  engine_version    = "8.0.40"
+  identifier = local.resource_name
+
+  engine         = "mysql"
+  engine_version = "8.0"
+
   instance_class    = "db.t4g.micro"
   allocated_storage = 20
 
-  db_name  = "transactions" # AWS will create this schema automatically
+  db_name = "transactions"
+
   username = "root"
-  port     = "3306"
-  password = "RoboShop1"
-  manage_master_user_password = false
+  port     = 3306
 
-  vpc_security_group_ids = [local.mysql_sg_id]
+  # AWS Secrets Manager manages the RDS master password.
+  manage_master_user_password = true
 
-  # DB subnet group
+  vpc_security_group_ids = [
+    local.mysql_sg_id
+  ]
+
   create_db_subnet_group = false
-  db_subnet_group_name = local.database_subnet_group_name
+  db_subnet_group_name   = local.database_subnet_group_name
 
-  # DB parameter group
-  family = "mysql8.0"
+  family               = "mysql8.0"
+  major_engine_version  = "8.0"
 
-  # DB option group
-  major_engine_version = "8.0"
-
-  # Database Deletion Protection
   deletion_protection = false
   skip_final_snapshot = true
 
@@ -40,36 +42,25 @@ module "db" {
     }
   ]
 
-  options = [
-    {
-      option_name = "MARIADB_AUDIT_PLUGIN"
-
-      option_settings = [
-        {
-          name  = "SERVER_AUDIT_EVENTS"
-          value = "CONNECT"
-        },
-        {
-          name  = "SERVER_AUDIT_FILE_ROTATIONS"
-          value = "37"
-        },
-      ]
-    },
-  ]
-
   tags = merge(
     var.common_tags,
     {
-        Name = local.resource_name
+      Name = local.resource_name
     }
   )
 }
 
-resource "aws_route53_record" "www-dev" {
+resource "aws_route53_record" "mysql" {
   zone_id = var.zone_id
-  name    = "mysql-${var.environment}.${var.domain_name}"
-  type    = "CNAME"
-  ttl     = 5
-  records = [module.db.db_instance_address]
+
+  name = "mysql-${var.environment}.${var.domain_name}"
+
+  type = "CNAME"
+  ttl  = 300
+
+  records = [
+    module.db.db_instance_address
+  ]
+
   allow_overwrite = true
 }
