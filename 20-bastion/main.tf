@@ -1,7 +1,7 @@
 module "bastion" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   
-  ami = Redhat-9-DevOps-Practice
+  ami = data.aws_ami.joindevops.id
   name = local.resource_name
 
   instance_type          = "t3.micro"
