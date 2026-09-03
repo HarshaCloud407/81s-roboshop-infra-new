@@ -1,16 +1,16 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
-      version = "5.75.0"
+      source  = "hashicorp/aws"
+      version = "5.95.0"
     }
   }
 
   backend "s3" {
-    bucket = "81s-remote-state-dev"
-    key    = "roboshop-eks"
+    bucket = "82s-tf-remote-state-dev"
+    key    = "roboshop-dev-eks" # you should have unique keys with in the bucket, same key should not be used in other repos or tf projects
     region = "us-east-1"
-    dynamodb_table = "81s-locking-dev"
+    dynamodb_table = "82s-tf-remote-state-dev"
   }
 }
 
