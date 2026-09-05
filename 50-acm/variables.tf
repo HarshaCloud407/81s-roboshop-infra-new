@@ -16,9 +16,9 @@ variable "common_tags" {
 
 
 variable "zone_name" {
-    default = "daws81s.online"
+    default = "hariawsdevops.online"
 }
 
 variable "zone_id" {
-    default = "Z09912121MS725XSKH1TG"
+    default = "Z00916842MCDX0S5FWPWY"
 }
