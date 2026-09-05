@@ -1,26 +1,26 @@
 variable "project_name" {
-    default = "roboshop"
+  default = "roboshop"
 }
 
 variable "environment" {
-    default = "dev"
+  default = "dev"
 }
 
 variable "common_tags" {
-    default = {
-        Project = "roboshop"
-        Terraform = "true"
-        Environment = "dev"
-    }
+  default = {
+    Project     = "roboshop"
+    Terraform   = "true"
+    Environment = "dev"
+  }
 }
 
 variable "ingress_alb_tags" {
-    default = {
-        Component = "web-alb"
-    }
+  default = {
+    Component = "web-alb"
+  }
 }
 
 
 variable "zone_name" {
-    default = "hariawsdevops.online"
+  default = "hariawsdevops.online"
 }
