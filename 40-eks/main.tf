@@ -7,12 +7,21 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
+<<<<<<< HEAD
   cluster_name                  = local.name
   cluster_version               = "1.32" # later we upgrade 1.32
   create_node_security_group    = false
   create_cluster_security_group = false
   cluster_security_group_id     = local.eks_control_plane_sg_id
   node_security_group_id        = local.eks_node_sg_id
+=======
+  cluster_name    = local.name
+  cluster_version = "1.32" # later we upgrade 1.32
+  create_node_security_group = false
+  create_cluster_security_group = false
+  cluster_security_group_id = local.eks_control_plane_sg_id
+  node_security_group_id = local.eks_node_sg_id
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
 
   #bootstrap_self_managed_addons = false
   cluster_addons = {
@@ -20,7 +29,11 @@ module "eks" {
     eks-pod-identity-agent = {}
     kube-proxy             = {}
     vpc-cni                = {}
+<<<<<<< HEAD
     metrics-server         = {}
+=======
+    metrics-server = {}
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
   }
 
   # Optional
@@ -59,14 +72,23 @@ module "eks" {
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       #ami_type       = "AL2_x86_64"
       instance_types = ["t3.small"]
+<<<<<<< HEAD
       key_name       = aws_key_pair.eks.key_name
+=======
+      key_name = aws_key_pair.eks.key_name
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
 
       min_size     = 2
       max_size     = 10
       desired_size = 2
       iam_role_additional_policies = {
+<<<<<<< HEAD
         AmazonEBSCSIDriverPolicy     = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
         AmazonEFSCSIDriverPolicy     = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
+=======
+        AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        AmazonEFSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
         AmazonEKSLoadBalancingPolicy = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
       }
     }
@@ -75,7 +97,11 @@ module "eks" {
   tags = merge(
     var.common_tags,
     {
+<<<<<<< HEAD
       Name = local.name
+=======
+        Name = local.name
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
     }
   )
 }
