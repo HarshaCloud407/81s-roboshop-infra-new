@@ -7,36 +7,74 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
+<<<<<<< HEAD
   cluster_name                  = local.name
   cluster_version               = "1.32"
+=======
+<<<<<<< HEAD
+  cluster_name                  = local.name
+  cluster_version               = "1.32" # later we upgrade 1.32
+>>>>>>> ffed66343b877995813675084587cc93c11a708c
   create_node_security_group    = false
   create_cluster_security_group = false
   cluster_security_group_id     = local.eks_control_plane_sg_id
   node_security_group_id        = local.eks_node_sg_id
+<<<<<<< HEAD
 
   bootstrap_self_managed_addons = false
 
+=======
+=======
+  cluster_name    = local.name
+  cluster_version = "1.32" # later we upgrade 1.32
+  create_node_security_group = false
+  create_cluster_security_group = false
+  cluster_security_group_id = local.eks_control_plane_sg_id
+  node_security_group_id = local.eks_node_sg_id
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
+
+  #bootstrap_self_managed_addons = false
+>>>>>>> ffed66343b877995813675084587cc93c11a708c
   cluster_addons = {
     coredns                = {}
     eks-pod-identity-agent = {}
     kube-proxy             = {}
     vpc-cni                = {}
+<<<<<<< HEAD
     metrics-server         = {}
   }
 
   cluster_endpoint_public_access = false
 
+=======
+<<<<<<< HEAD
+    metrics-server         = {}
+=======
+    metrics-server = {}
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
+  }
+
+  # Optional
+  cluster_endpoint_public_access = false
+
+  # Optional: Adds the current caller identity as an administrator via cluster access entry
+>>>>>>> ffed66343b877995813675084587cc93c11a708c
   enable_cluster_creator_admin_permissions = true
 
   vpc_id                   = local.vpc_id
   subnet_ids               = local.private_subnet_ids
   control_plane_subnet_ids = local.private_subnet_ids
 
+<<<<<<< HEAD
+=======
+  # EKS Managed Node Group(s)
+>>>>>>> ffed66343b877995813675084587cc93c11a708c
   eks_managed_node_group_defaults = {
     instance_types = ["m6i.large", "m5.large", "t3.medium", "t3.small"]
   }
 
   eks_managed_node_groups = {
+<<<<<<< HEAD
     /*
 blue = {
 # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
@@ -61,10 +99,18 @@ key_name = aws_key_pair.eks.key_name
       # ami_type       = "AL2_x86_64"
       instance_types = ["t3.small"]
       key_name       = aws_key_pair.eks.key_name
+=======
+    /* blue = {
+      # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
+      #ami_type       = "AL2_x86_64"
+      instance_types = ["t3.small"]
+      key_name = aws_key_pair.eks.key_name
+>>>>>>> ffed66343b877995813675084587cc93c11a708c
 
       min_size     = 2
       max_size     = 10
       desired_size = 2
+<<<<<<< HEAD
 
       iam_role_additional_policies = {
         AmazonEBSCSIDriverPolicy     = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
@@ -74,12 +120,53 @@ key_name = aws_key_pair.eks.key_name
     }
 
 
+=======
+      iam_role_additional_policies = {
+        AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        AmazonEFSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
+        AmazonEKSLoadBalancingPolicy = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
+      }
+    } */
+
+    green = {
+      # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
+      #ami_type       = "AL2_x86_64"
+      instance_types = ["t3.small"]
+<<<<<<< HEAD
+      key_name       = aws_key_pair.eks.key_name
+=======
+      key_name = aws_key_pair.eks.key_name
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
+
+      min_size     = 2
+      max_size     = 10
+      desired_size = 2
+      iam_role_additional_policies = {
+<<<<<<< HEAD
+        AmazonEBSCSIDriverPolicy     = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        AmazonEFSCSIDriverPolicy     = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
+=======
+        AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        AmazonEFSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
+        AmazonEKSLoadBalancingPolicy = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
+      }
+    }
+>>>>>>> ffed66343b877995813675084587cc93c11a708c
   }
 
   tags = merge(
     var.common_tags,
     {
+<<<<<<< HEAD
       Name = local.name
+=======
+<<<<<<< HEAD
+      Name = local.name
+=======
+        Name = local.name
+>>>>>>> 3125dce2369c948575274853b3ccaf8d5ad51485
+>>>>>>> ffed66343b877995813675084587cc93c11a708c
     }
   )
 }
